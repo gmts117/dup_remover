@@ -1,2 +1,2 @@
 # dup_remover
-find_and_remove_duplicate_files
+경로 안의 모든 파일을 탐색 후 해시값을 기반으로 중복여부를 판단하여 제거합니다. 

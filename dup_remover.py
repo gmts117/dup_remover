@@ -27,14 +27,53 @@ def find_and_select_duplicates(root_path):
             else:
                 file_hashes[file_hash] = file_path
 
-    # 2단계: 중복 파일 목록 사용자에게 보여주기 및 번호 매기기
+    # 2단계: 중복 파일이 없는 경우 처리
     if not duplicates:
         print("중복 파일이 없습니다.")
         return
 
+    print(f"총 {len(duplicates)} 개의 중복 파일 그룹을 발견했습니다.")
+    
+    # 3단계: 삭제 방식 선택
+    print("\n삭제 방식을 선택하세요:")
+    print("1. 수동 선택 (개별 파일 선택)")
+    print("2. 자동 삭제 (각 그룹에서 하나만 남기고 모두 삭제)")
+    choice = input("선택 (1 또는 2): ").strip()
+    
+    if choice == "2":
+        # 자동 삭제 모드
+        auto_delete_duplicates(duplicates)
+    else:
+        # 수동 선택 모드 (기존 기능)
+        manual_delete_duplicates(duplicates)
+
+def auto_delete_duplicates(duplicates):
+    """각 중복 그룹에서 하나만 남기고 나머지 자동 삭제"""
+    total_deleted = 0
+    total_kept = 0
+    
+    print("\n자동 삭제 모드를 시작합니다...")
+    
+    for file_hash, paths in duplicates.items():
+        # 첫 번째 파일은 보존
+        keep_file = paths[0]
+        total_kept += 1
+        
+        # 나머지 파일은 삭제
+        for path in paths[1:]:
+            os.remove(path)
+            print(f"삭제됨: {path}")
+            total_deleted += 1
+        
+        print(f"보존됨: {keep_file}")
+    
+    print(f"\n자동 삭제 완료: {total_deleted}개 파일 삭제, {total_kept}개 파일 보존")
+
+def manual_delete_duplicates(duplicates):
+    """사용자가 직접 삭제할 파일을 선택"""
     file_to_index = {}
     index = 1
-    print("중복 파일 목록:")
+    print("\n중복 파일 목록:")
     for file_hash, paths in duplicates.items():
         print(f"\n해시: {file_hash}")
         for path in paths:
@@ -42,7 +81,7 @@ def find_and_select_duplicates(root_path):
             print(f"  {index}. {path}")
             index += 1
 
-    # 3단계: 사용자에게 삭제할 파일 선택 요청
+    # 사용자에게 삭제할 파일 선택 요청
     selected_indices = input("\n삭제할 파일 번호를 쉼표로 구분하여 입력하세요 (예: 1,3,5): ").strip()
     selected_indices = selected_indices.split(',')
     
@@ -58,11 +97,11 @@ def find_and_select_duplicates(root_path):
             print(f"잘못된 입력: {index_str}")
 
     if files_to_delete:
-        # 4단계: 파일 삭제
+        # 파일 삭제
         for file_path in files_to_delete:
             os.remove(file_path)
             print(f"삭제됨: {file_path}")
-        print("선택된 중복 파일 삭제가 완료되었습니다.")
+        print(f"선택된 {len(files_to_delete)}개 중복 파일 삭제가 완료되었습니다.")
     else:
         print("삭제할 파일이 없습니다.")
 
